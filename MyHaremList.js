@@ -3,21 +3,9 @@ var express = require('express');
 var cookie = require('cookie-session');// Charge le middleware de sessions
 var bodyParser = require('body-parser');// Charge le middleware de gestion des paramètres
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
-var mysql= require("mysql");
 
 //init
 var app = express();
-var SGBD = mysql.createConnection({
-    host : 'localhost',
-    user : 'MHL',
-    password : 'lol',
-    database : 'MyHaremList'
-});
-SGBD.connect(function(err){
-    if (err) {
-        console.error('error connecting: '+ err.stack);
-    }
-});
 
 //Welcome Stranger
 app.use(cookie({

@@ -1,13 +1,23 @@
 {
     "name": "MyHaremList",
     "version": "0.1.0",
+    "description": "An app to gather your favorite characters.",
+    "engines": {
+        "node": "4.4.4"
+    },
+    "main":"MyHaremList.js",
+    "scripts":{
+        "start":"node MyHaremList.js"
+    },
     "dependencies": {
         "express": "~4.11.0",
         "ejs": "~2.1.4",
         "cookie-session": "~1.1.0",
         "body-parser": "~1.10.1",
-        "mysql": "~2.10.2"
     },
-    "author": "Clément <fournier.clt@gmail.com>",
-    "description": "Site de harem totalement tout public"
+    "repository":{
+        "type": "git",
+        "url":"https://github.com/fournierclement/MyHaremList"
+    },
+    "author": "Clément <fournier.clt@gmail.com>"
 }
