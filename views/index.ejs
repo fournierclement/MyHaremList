@@ -19,7 +19,9 @@
                 <span class="icon-bar"></span>
             </button>
             <a class="navbar-brand" href="/">
-                <span>MyHaremList
+                <span>
+                    <img class="mhl-logo" src="logo.svg" alt="MHL logo" >
+                    MyHaremList
                 </span>
             </a>
         </div>
@@ -87,7 +89,7 @@
                                         <a href="/users/<%= login %>">My Profile</a>
                                     </li>
                                     <li>
-                                        <form action="/login/logout" method="post">
+                                        <form style="margin-left:20px" action="/login/logout" method="post">
                                             <a onclick="$(this).parent().submit();">
                                             Log out
                                                 <span class="glyphicon glyphicon-log-out">
@@ -105,8 +107,9 @@
         </div>
     </div>
 </nav>
-<header>
-
+<header class="bright-head" class="container-fluid">
+    <H1>Welcome <%= login %></H1>
+    <p>Totally locking for somthing nigga?</p>
 </header>
 <section class="row">
     <div name="Last-users" class="col-sm-6">

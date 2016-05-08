@@ -19,7 +19,9 @@
                 <span class="icon-bar"></span>
             </button>
             <a class="navbar-brand" href="/">
-                <span>MyHaremList
+                <span>
+                    <img class="mhl-logo" src="logo.svg" alt="MHL logo" >
+                    MyHaremList
                 </span>
             </a>
         </div>
@@ -32,7 +34,7 @@
             </ul>
             <section name="user-pan">
                 <% if (!logged) { %>
-                    <!--display for visitor-->
+<!-- This all part of the nav bar is displayed for visitor-->
                     <div name="logger">
                         <ul class="nav navbar-nav navbar-right">
                             <li>
@@ -49,7 +51,7 @@
                                     </span>
                                 </a>
                                 <ul class="dropdown-menu">
-                                    <form style="color:#000000" action="/login/submit" method="post">
+                                    <form  action="/login/submit" method="post">
                                         <li>
                                             <input type="text" name="nickname" placeholder="Nickname" required>
                                         </li>
@@ -66,7 +68,7 @@
                     </div>
                 <% }; %>
                 <% if (logged) { %>
-                <!--display for logged-->
+<!-- This whole part of the nav bar is displayed for logged-->
                 <div name="logged">
                           <ul class="nav navbar-nav navbar-right">
                             <li>
@@ -103,29 +105,31 @@
         </div>
     </div>
 </nav>
-<section class="container-fluid">
-    <h1>login registration</h1>
+<header class="bright-head" class="container-fluid">
+    <H1>Sign up over here !</H1>
+</header>
+<section class="bright-board" class="container-fluid">
     <form action="/signup/submit" method="post">
         <p>
             <label for="nickname">Nickname :</label>
-            <input type="text" name="nickname" id="nickname" autofocus />
+            <input type="text" name="nickname" id="nickname" autofocus required/>
         </p>
         <p>
             <label for="email">Email :</label>
-            <input type="email" name="email" id="email"/>
+            <input type="email" name="email" id="email" required/>
         </p>
         <p>
             <label for="birth">Birthday :</label>
-            <input type="date" name="birth" id="birth"/>
+            <input type="date" name="birth" id="birth" required/>
         </p>
         <p>
-            <label for="gender">Gender :</label>
+            <label required for="gender">Gender :</label>
             <input type="radio" name="gender" value="Husband">Husband 
             <input type="radio" name="gender" value="Waifu">Waifu
         </p>
         <p>
             <label for="password">Password :</label>
-            <input type="password" name="password" id="password"/>
+            <input type="password" name="password" id="password" required/>
         </p>
         <input type="submit" />
     </form>

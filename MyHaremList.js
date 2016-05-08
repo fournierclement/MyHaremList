@@ -3,6 +3,7 @@ var express = require('express');
 var cookie = require('cookie-session');// Charge le middleware de sessions
 var bodyParser = require('body-parser');// Charge le middleware de gestion des paramètres
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
+var pg = require('pg');
 
 //init
 var app = express();

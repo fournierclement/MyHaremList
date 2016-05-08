@@ -1,6 +1,35 @@
 body {
-    background: #B13C2E;
-    color: #F1EEDD;
-    margin:5px;
-    margin-top:55px;
+    background: #B33F30;
+    color: #020202;
+    margin: 15px;
+    margin-top:70px;
+    font-size: 20px;
+}
+.bright-head {
+    background: #F8F8F8;
+    border-color: #E7E7E7;
+    border-style: solid;
+    border-width: 1px;
+    max-width: 920px;
+    margin: auto;
+    margin-bottom: 20px;
+    padding:20px;
+    box-shadow: 0px 0px 10px 5px rgba(1,1,1,0.5);
+}
+.bright-board {
+    background: #F8F8F8;
+    border-color: #E7E7E7;
+    border-style: solid;
+    border-width: 1px;
+    max-width: 920px;
+    margin: auto;
+    margin-bottom: 10px;
+    padding:20px;
+    box-shadow: 0px 0px 10px 5px rgba(1,1,1,0.5);
+}
+.mhl-logo {
+    margin-top: -12px;
+    margin-left: -1px;
+    max-width: 40px;
+    max-height: 40px;
 }

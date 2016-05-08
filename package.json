@@ -10,6 +10,7 @@
         "start":"node MyHaremList.js"
     },
     "dependencies": {
+        "pg": "4.x",
         "express": "~4.11.0",
         "ejs": "~2.1.4",
         "cookie-session": "~1.1.0",
