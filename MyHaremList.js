@@ -5,55 +5,81 @@ var bodyParser = require('body-parser');// Charge le middleware de gestion des p
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
 var mysql= require("mysql");
 
+//init
 var app = express();
 var SGBD = mysql.createConnection({
     host : 'localhost',
-    user : 'HML',
-    password : "lol",
-    datebase : "MyHaremList",
-    charset : "utf8"
+    user : 'MHL',
+    password : 'lol',
+    database : 'MyHaremList'
 });
-SGBD.connect();
+SGBD.connect(function(err){
+    if (err) {
+        console.error('error connecting: '+ err.stack);
+    }
+});
 
-//Getting started
+//Welcome Stranger
 app.use(cookie({
     name:"Knock",
-    keys:['Knock','Knock']
+    keys:['SayMyName']
 }))
 
 .use(function(req,res,next){
-    if (typeof(req.session.log) == 'undefined') {
-        req.session.log = 'invité';
+    if (typeof(req.session.logged) == 'undefined') {
+        req.session.logged = false;
+        req.session.login = "Visitor";
     }
     next();
 });
 
-//Show my you you are
+//Home
 
 app.get('/', function(req, res) {
     res.setHeader("content-Type","text/html");
-    res.render('index.ejs');
+    res.render('index.ejs', {logged: req.session.logged, login:req.session.login});
 });
 
+//Don't be a stranger anymore.
+app.get('/signup', function(req,res){
+    res.setHeader("content-Type","text/html");
+    res.render("signUp.ejs", {logged: req.session.logged, login:req.session.login});
+});
+
+app.post('/signup/submit', urlencodedParser, function(req,res){
+    req.session.login = req.body.nickname;
+    req.session.logged = true;
+    res.setHeader("code",201)
+    res.redirect("/");
+});
+
+/*
 app.get('/login', function(req, res){
     res.setHeader("content-Type","text/html");
-    res.render("login.ejs");
+    res.render("loginPanel.ejs");
+});
+*/
+app.post('/login/submit', urlencodedParser, function(req,res){
+    req.session.logged = true;
+    req.session.login = req.body.nickname;
+    res.setHeader("code", 302)
+    res.redirect(req.referer || '/');
 });
 
-app.post('/login/submit', function(req, res){
-    SGBD.query("INSERT INTO users (email,nickname,passWord,gender,birth) VALUES(?,?,?,?,?)",
-                [req.body.email,req.body.nickname,req.body.password,
-                req.body.gender,req.body.birth],
-                function(error, results, fields){
-
-                });
+app.post('/login/logout', function(req,res){
+    req.session.logged=false;
+    req.session.login="Visitor";
+    res.setHeader('code', 302);
+    res.redirect(req.referer || '/')
 });
+
+//User and users.
 /*
-app.get('/user', function(req, res) {
+app.get('/users', function(req, res) {
     res.setHeader("content-Type","text/html");
     res.render('index.ejs');
 });
-app.get('/user/:userName', function(req, res) {
+app.get('/users/:userName', function(req, res) {
     res.setHeader("content-Type","text/html");
     res.render('index.ejs');
 });
@@ -78,6 +104,3 @@ app.use(function(req, res, next){
 });
 
 app.listen(8080);
-SGBD.end(function(err){
-
-});

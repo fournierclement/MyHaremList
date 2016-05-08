@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>My Harem List</title>
+    <title>My Harem List</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta charset="utf-8">
-	 <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+     <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
       <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
       <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 </head>
@@ -90,13 +90,11 @@
                                     <li>
                                         <form action="/login/logout" method="post">
                                             <a onclick="$(this).parent().submit();">
-                                            Log out
                                                 <span class="glyphicon glyphicon-log-out">
-                                                </span>
+                                                </span> Log out
                                             </a>
                                         </form>
                                     </li>
-                                    </form>
                                 </ul>
                             </li>
                         </ul>
@@ -106,14 +104,32 @@
         </div>
     </div>
 </nav>
-<header>
-
-</header>
-<section class="row">
-    <div name="Last-users" class="col-sm-6">
-    </div>
-    <div name="Last-char" class="col-sm-6">
-    </div>
+<section class="container-fluid">
+    <h1>login registration</h1>
+    <form action="/signup/submit" method="post">
+        <p>
+            <label for="nickname">Nickname :</label>
+            <input type="text" name="nickname" id="nickname" autofocus />
+        </p>
+        <p>
+            <label for="email">Email :</label>
+            <input type="email" name="email" id="email"/>
+        </p>
+        <p>
+            <label for="birth">Birthday :</label>
+            <input type="date" name="birth" id="birth"/>
+        </p>
+        <p>
+            <label for="gender">Gender :</label>
+            <input type="radio" name="gender" value="Husband">Husband 
+            <input type="radio" name="gender" value="Waifu">Waifu
+        </p>
+        <p>
+            <label for="password">Password :</label>
+            <input type="password" name="password" id="password"/>
+        </p>
+        <input type="submit" />
+    </form>
 </section>
 </body>
 </html>
