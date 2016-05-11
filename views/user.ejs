@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="MHL.css">
+    <link rel="stylesheet" type="text/css" href="/MHL.css">
 </head>
 <body>
 <nav class="navbar navbar-default navbar-fixed-top">
@@ -20,7 +20,7 @@
             </button>
             <a class="navbar-brand" href="/">
                 <span>
-                    <img class="mhl-logo" src="logo.svg" alt="MHL logo" >
+                    <img class="mhl-logo" src="/logo.svg" alt="MHL logo" >
                     MyHaremList
                 </span>
             </a>
@@ -28,17 +28,19 @@
         <div class="collapse navbar-collapse" id="myNavbar">
             <ul class="nav navbar-nav">
                 <li class="active">
-                    <a href="/users">UserList
+                    <a href="/search">
+                    <span class="glyphicon glyphicon-search"> Search
+                    </span>
                     </a>
                 </li>
             </ul>
             <section name="user-pan">
                 <% if (!logged) { %>
-<!-- This all part of the nav bar is displayed for visitor-->
+    <!-- This all part of the nav bar is displayed for visitor-->
                     <div name="logger">
                         <ul class="nav navbar-nav navbar-right">
                             <li>
-                                <a href="/signup">
+                                <a href="/user">
                                     <span class="glyphicon glyphicon-user">
                                     </span> Sign Up
                                 </a>
@@ -51,7 +53,7 @@
                                     </span>
                                 </a>
                                 <ul class="dropdown-menu">
-                                    <form  action="/login/submit" method="post">
+                                    <form  action="/login" method="post">
                                         <li>
                                             <input type="text" name="nickname" placeholder="Nickname" required>
                                         </li>
@@ -68,13 +70,12 @@
                     </div>
                 <% }; %>
                 <% if (logged) { %>
-<!-- This whole part of the nav bar is displayed for logged-->
+    <!-- This whole part of the nav bar is displayed for logged-->
                 <div name="logged">
                           <ul class="nav navbar-nav navbar-right">
                             <li>
-                                <a href="/users">
-                                    <span class="glyphicon glyphicon-search">
-                                    </span> Search Users
+                                <a href="/harem/<%= login %>">
+                                    MyHarem
                                 </a>
                             </li>
                             <li class="dropdown">
@@ -86,13 +87,14 @@
                                 </a>
                                 <ul class="dropdown-menu">
                                     <li>
-                                        <a href="/users/<%= login %>">My Profile</a>
+                                        <a href="/user/<%= login %>">My Profile</a>
                                     </li>
                                     <li>
-                                        <form action="/login/logout" method="post">
-                                            <a onclick="$(this).parent().submit();">
+                                        <form action="/logout" method="get">
+                                            <a onclick="$(this).parent().submit();"> 
                                                 <span class="glyphicon glyphicon-log-out">
-                                                </span> Log out
+                                                </span>
+                                                Log out
                                             </a>
                                         </form>
                                     </li>
@@ -100,39 +102,55 @@
                             </li>
                         </ul>
                 </div>
+    <!-- End of alternatives part -->
                 <% }; %>
             </section>
         </div>
     </div>
 </nav>
-<header class="bright-head" class="container-fluid">
-    <H1>Sign up over here !</H1>
-</header>
-<section class="bright-board" class="container-fluid">
-    <form action="/signup/submit" method="post">
-        <p>
-            <label for="nickname">Nickname :</label>
-            <input type="text" name="nickname" id="nickname" autofocus required/>
-        </p>
-        <p>
-            <label for="email">Email :</label>
-            <input type="email" name="email" id="email" required/>
-        </p>
-        <p>
-            <label for="birth">Birthday :</label>
-            <input type="date" name="birth" id="birth" required/>
-        </p>
-        <p>
-            <label required for="gender">Gender :</label>
-            <input type="radio" name="gender" value="Husband">Husband 
-            <input type="radio" name="gender" value="Waifu">Waifu
-        </p>
-        <p>
-            <label for="password">Password :</label>
-            <input type="password" name="password" id="password" required/>
-        </p>
-        <input type="submit" />
-    </form>
-</section>
+<% if(logged){ %>
+    <header class="bright-head" class="container-fluid">
+        <h1> You are logged as <%= login %>.</h1>
+    </header>
+    <section class="bright-board" class="container-fluid">
+        <span> <a href="/">Back to the homepage</a></span>
+    </section>
+<% } %>
+<% if(! logged){ %>
+    <header class="bright-head" class="container-fluid">
+        <H1>Sign up over here !</H1>
+    </header>
+    <% if(typeof(error)!='undefined') { %>
+        <section class="bright-board" class="container-fluid">
+            <span><%=error %> </span>
+        </section>
+    <% } %>
+    <section class="bright-board" class="container-fluid">
+        <form action="/user" method="post">
+            <p>
+                <label for="nickname">Nickname :</label>
+                <input type="text" name="nickname" id="nickname" autofocus required/>
+            </p>
+            <p>
+                <label for="email">Email :</label>
+                <input type="email" name="email" id="email" required/>
+            </p>
+            <p>
+                <label for="birth">Birthday :</label>
+                <input type="date" name="birth" id="birth" required/>
+            </p>
+            <p>
+                <label required for="gender">Gender :</label>
+                <input type="radio" name="gender" value="Husband">Husband 
+                <input type="radio" name="gender" value="Waifu">Waifu
+            </p>
+            <p>
+                <label for="password">Password :</label>
+                <input type="password" name="password" id="password" required/>
+            </p>
+            <input type="submit" />
+        </form>
+    </section>
+<% }; %>
 </body>
 </html>

@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>My Harem List</title>
+    <title>MyHaremList</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta charset="utf-8">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="MHL.css">
+    <link rel="stylesheet" type="text/css" href="/MHL.css">
 </head>
 <body>
 <nav class="navbar navbar-default navbar-fixed-top">
@@ -20,7 +20,7 @@
             </button>
             <a class="navbar-brand" href="/">
                 <span>
-                    <img class="mhl-logo" src="logo.svg" alt="MHL logo" >
+                    <img class="mhl-logo" src="/logo.svg" alt="MHL logo" >
                     MyHaremList
                 </span>
             </a>
@@ -28,17 +28,19 @@
         <div class="collapse navbar-collapse" id="myNavbar">
             <ul class="nav navbar-nav">
                 <li class="active">
-                    <a href="/users">UserList
+                    <a href="/search">
+                    <span class="glyphicon glyphicon-search"> Search
+                    </span>
                     </a>
                 </li>
             </ul>
             <section name="user-pan">
                 <% if (!logged) { %>
-                    <!--display for visitor-->
+    <!-- This all part of the nav bar is displayed for visitor-->
                     <div name="logger">
                         <ul class="nav navbar-nav navbar-right">
                             <li>
-                                <a href="/signup">
+                                <a href="/user">
                                     <span class="glyphicon glyphicon-user">
                                     </span> Sign Up
                                 </a>
@@ -51,7 +53,7 @@
                                     </span>
                                 </a>
                                 <ul class="dropdown-menu">
-                                    <form action="/login/submit" method="post">
+                                    <form  action="/login" method="post">
                                         <li>
                                             <input type="text" name="nickname" placeholder="Nickname" required>
                                         </li>
@@ -68,13 +70,12 @@
                     </div>
                 <% }; %>
                 <% if (logged) { %>
-                <!--display for logged-->
+    <!-- This whole part of the nav bar is displayed for logged-->
                 <div name="logged">
                           <ul class="nav navbar-nav navbar-right">
                             <li>
-                                <a href="/users">
-                                    <span class="glyphicon glyphicon-search">
-                                    </span> Search Users
+                                <a href="/harem/<%= login %>">
+                                    MyHarem
                                 </a>
                             </li>
                             <li class="dropdown">
@@ -86,31 +87,53 @@
                                 </a>
                                 <ul class="dropdown-menu">
                                     <li>
-                                        <a href="/users/<%= login %>">My Profile</a>
+                                        <a href="/user/<%= login %>">My Profile</a>
                                     </li>
                                     <li>
-                                        <form style="margin-left:20px" action="/login/logout" method="post">
-                                            <a onclick="$(this).parent().submit();">
-                                            Log out
+                                        <form action="/logout" method="get">
+                                            <a onclick="$(this).parent().submit();"> 
                                                 <span class="glyphicon glyphicon-log-out">
                                                 </span>
+                                                Log out
                                             </a>
                                         </form>
                                     </li>
-                                    </form>
                                 </ul>
                             </li>
                         </ul>
                 </div>
+    <!-- End of alternatives part -->
                 <% }; %>
             </section>
         </div>
     </div>
 </nav>
-<header class="bright-head" class="container-fluid">
+<header class="bright-head" class="container-fluid"> 
     <H1>Welcome <%= login %></H1>
-    <p>Totally locking for somthing nigga?</p>
+    <p>This isn't a degenerated website. You shouldn't loose your honor and innocence in your journey here.</p>
+    <h6>At least, be wary of the wild trolls of internet.</h6>
 </header>
+<section class="bright-board" class="container-fuild">
+    <div class="bright-cell">
+        <H1>What is MyHaremList ?</H1>
+        <p>
+            MyHaremList is a website where you can make a list with your favorite characters.
+        </p>
+        <p>
+            This is the 21st century, there is infinite fiction-stories and moreover infinite fiction characters. MHL shall list them all but that's not all...
+        </p>
+    </div>
+    <div class="bright-cell">
+        <h3>It's just make lists ? Why do you call it "Harem" then ?</h3>
+        <p>
+            So close, yet so far. Gather all the names you would be wedded to, would you call it a list ?<br> 
+            Haven't you ever heard some otaku shot "THIS IS MY WAIFU" or an inoncente girl talking about her "Husband" ?<br>
+            In a world where the Eiffel tower already have a waifu, where someone get married 86 and divorced 82 or be a groom for only a week, what is the wedding worth of?<br>
+            There is no shame to love a fictionnal character, decades of people work hard to make those pixel and ink heaps be emotional ! 
+        </p>
+    </div>
+    <h2>You fool ! There is no more reason for you to fly ! Go ahead and fill Your Harem List !</h2>
+</section>
 <section class="row">
     <div name="Last-users" class="col-sm-6">
     </div>

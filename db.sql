@@ -1,45 +1,86 @@
-DROP DATABASE MyHaremList;
+CREATE DATABASE myharemlist;
+\connect myharemlist
 
-CREATE DATABASE MyHaremList CHARACTER SET 'utf8';
-USE MyHaremList;
 CREATE TABLE users
 (
- userId int UNSIGNED NOT NULL AUTO_INCREMENT,
+ nickname varchar(30) NOT NULL PRIMARY KEY,
  email varchar(63) NOT NULL UNIQUE,
- nickName varchar(30) NOT NULL UNIQUE,
- passWord varchar(63) NOT NULL,
+ password varchar(144) NOT NULL,
  gender varchar(7) NOT NULL,
- birth DATE NOT NULL,
- pictPath varchar(144) DEFAULT NULL,
- biography varchar(144) DEFAULT NULL,
- sudo BOOLEAN NOT NULL DEFAULT FALSE,
- PRIMARY KEY (userId)
-)
-ENGINE=INNODB;
+ birth DATE NOT NULL
+);
 
 CREATE TABLE univers
 (
- universId int UNSIGNED NOT NULL AUTO_INCREMENT,
- universName varchar(144) NOT NULL,
- PRIMARY KEY (universId)
-)
-ENGINE=INNODB;
+ universId bigserial PRIMARY KEY,
+ universName varchar(144) NOT NULL
+);
 
-CREATE TABLE charac
+CREATE TABLE characs
 (
- charId int UNSIGNED NOT NULL AUTO_INCREMENT,
+ charId bigserial PRIMARY KEY,
  charName varchar(63) NOT NULL,
  alterNames varchar(144),
  charGender Varchar(7) NOT NULL,
  charDesc varchar(666),
- universId int UNSIGNED NOT NULL,
- PRIMARY KEY (charId),
- FOREIGN KEY (universId) REFERENCES univers(universId)
-)
-ENGINE=INNODB;
+ universId bigserial REFERENCES univers(universId) ON DELETE CASCADE
+);
 
-INSERT INTO users (email,nickname,passWord,gender,birth,sudo)
-    VALUES('fournier.clt@gmail.com','Phyras','lolilol','Husband',"1995-11-09",TRUE);
-INSERT INTO univers (universName) VALUES ("Fate/Stay");
-INSERT INTO charac (charName,alterNames,charGender,charDesc,universId)
-    VALUES ("Saber","Arthuria, Arthur, King of Knights, SABAAA.","Waifu","A virgin king carving for redemption",1);
+CREATE TABLE harems
+(
+ haremId bigserial PRIMARY KEY,
+ nickname varchar(30) REFERENCES users(nickname) ON DELETE CASCADE,
+ haremName varchar(63) NOT NULL,
+ haremDesc varchar(144)
+);
+CREATE TABLE weddings
+(
+ haremId bigserial REFERENCES harems(haremId) ON DELETE CASCADE,
+ charId bigserial REFERENCES characs(charId) ON DELETE CASCADE,
+ wedDesc varchar(144),
+ favorite boolean DEFAULT false,
+ PRIMARY KEY (haremId, charId)
+);
+
+-- TRIGGERS :
+--Generate a default harem when a user sign up
+CREATE FUNCTION first_harem() RETURNS trigger AS $first_harem$
+    BEGIN
+        INSERT INTO harems (nickname,haremName,haremDesc)
+            VALUES (NEW.nickname,'My first harem', 'We must all begun somewhere');
+        RETURN NEW;
+    END;
+$first_harem$ LANGUAGE plpgsql;
+
+CREATE TRIGGER first_harem
+    AFTER INSERT ON users FOR EACH ROW
+    EXECUTE PROCEDURE first_harem();
+
+--Keep only One favorite par harem
+CREATE FUNCTION one_favorite() RETURNS trigger AS $one_favorite$
+    BEGIN
+        UPDATE weddings
+            SET favorite = false
+            WHERE haremId=NEW.haremId AND favorite = true;
+        RETURN NEW;
+    END;
+$one_favorite$ LANGUAGE plpgsql;
+
+CREATE TRIGGER one_favorite
+    BEFORE INSERT OR UPDATE ON weddings FOR EACH ROW
+    WHEN (NEW.favorite)
+    EXECUTE PROCEDURE one_favorite();
+
+
+--Tests :
+INSERT INTO univers (universName)
+    VALUES ('Fate/Stay');
+INSERT INTO characs (charName,alterNames,charGender,charDesc,universId)
+    VALUES ('Saber','Arthuria, Arthur, King of Knights, SABAAA.','Waifu','A virgin king carving for redemption',1);
+INSERT INTO characs (charName,alterNames,charGender,charDesc,universId)
+    VALUES ('Gilgamesh','Heres King', 'Husband','A highschooler who thinks everything belong to him.',1);
+
+/*
+\connect postgres
+DROP DATABASE myharemlist;
+*/
