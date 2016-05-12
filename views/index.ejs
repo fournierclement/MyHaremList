@@ -35,7 +35,7 @@
                 </li>
             </ul>
             <section name="user-pan">
-                <% if (!logged) { %>
+                <% if (!logs.logged) { %>
     <!-- This all part of the nav bar is displayed for visitor-->
                     <div name="logger">
                         <ul class="nav navbar-nav navbar-right">
@@ -69,7 +69,7 @@
                         </ul>
                     </div>
                 <% }; %>
-                <% if (logged) { %>
+                <% if (logs.logged) { %>
     <!-- This whole part of the nav bar is displayed for logged-->
                 <div name="logged">
                           <ul class="nav navbar-nav navbar-right">
@@ -80,7 +80,7 @@
                             </li>
                             <li class="dropdown">
                                 <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                                    <span class="glyphicon glyphicon-user"> <%= login%>
+                                    <span class="glyphicon glyphicon-user"> <%= logs.login%>
                                     </span>
                                     <span class="caret">
                                     </span>
@@ -109,8 +109,8 @@
     </div>
 </nav>
 <header class="bright-head" class="container-fluid"> 
-    <H1>Welcome <%= login %></H1>
-    <p>This isn't a degenerated website. You shouldn't loose your honor and innocence in your journey here.</p>
+    <H1>Welcome <%= logs.login %></H1>
+    <p>This isn't a degenerated website. You shouldn't lose your honor and innocence in your journey here.</p>
     <h6>At least, be wary of the wild trolls of internet.</h6>
 </header>
 <section class="bright-board" class="container-fuild">
@@ -120,16 +120,15 @@
             MyHaremList is a website where you can make a list with your favorite characters.
         </p>
         <p>
-            This is the 21st century, there is infinite fiction-stories and moreover infinite fiction characters. MHL shall list them all but that's not all...
-        </p>
+            This is the 21st century, there is infinite fiction-stories and moreover infinite fiction characters. MHL shall list them all but there is more...
     </div>
     <div class="bright-cell">
-        <h3>It's just make lists ? Why do you call it "Harem" then ?</h3>
+        <h3>It's just to make lists ? Why do you call it "Harem" then ?</h3>
         <p>
             So close, yet so far. Gather all the names you would be wedded to, would you call it a list ?<br> 
-            Haven't you ever heard some otaku shot "THIS IS MY WAIFU" or an inoncente girl talking about her "Husband" ?<br>
-            In a world where the Eiffel tower already have a waifu, where someone get married 86 and divorced 82 or be a groom for only a week, what is the wedding worth of?<br>
-            There is no shame to love a fictionnal character, decades of people work hard to make those pixel and ink heaps be emotional ! 
+            Haven't you ever heard some otaku shout "THIS IS MY WAIFU" or an innocent girl talking about her "Husband" ?<br>
+            In a world where the Eiffel tower already have a waifu, where someone get married 86 times and divorced 82 or is a groom for only a week, then why wouldn't you marry any character you want?<br>
+            There is no shame to love a fictional character, some people worked hard to give life to those pixel and ink heaps ! 
         </p>
     </div>
     <h2>You fool ! There is no more reason for you to fly ! Go ahead and fill Your Harem List !</h2>

@@ -21,7 +21,7 @@ app.use(cookie({
 }))
 //If you are noone, be our guest.
 .use(function(req,res,next){
-    if (typeof(req.session.logged) == undefined) {
+    if (typeof(req.session.logged) == 'undefined') {
         req.session.logged = false;
         req.session.login = "Visitor";
     }
@@ -32,7 +32,7 @@ app.use(cookie({
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 app.get('/', function(req, res) {
     res.setHeader("content-Type","text/html");
-    res.render('index.ejs', {logged: req.session.logged, login:req.session.login});
+    res.render('index.ejs', {logs: req.session});
 });
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //~~~~~~~~~~~~~~~SIGNING UP/FILL THE DATABASE~~~~~~~~~~~~~~~
@@ -40,7 +40,7 @@ app.get('/', function(req, res) {
 //Get the form page
 app.get('/user', function(req,res){
     res.setHeader("content-Type","text/html");
-    res.render("user.ejs", {logged: req.session.logged, login:req.session.login});
+    res.render("user.ejs", {logs: req.session});
 });
 
 //Post the user
@@ -58,7 +58,7 @@ app.post('/user', urlencodedParser, function(req,res){
                     done(client);
                     console.log(err);
                     return res.render("user.ejs",
-                            {logged: req.session.logged, login:req.session.login, error:"Connection to database failed, try later."},
+                            {logs: req.session, error:"Connection to database failed, try later."},
                             function(err, html){
                             res.status(500).send(html);
                         });
@@ -82,7 +82,7 @@ app.post('/user', urlencodedParser, function(req,res){
                         //need to send the message in the user form but also the 400 bad request code.
                         done(client);
             //MUST FOUND A WAY TO SEND THE TWO OF THOSE BACK
-                        res.render("user.ejs", {logged: req.session.logged, login:req.session.login, error:message},
+                        res.render("user.ejs", {logs: req.session, error:message},
                             function(err, html){
                             res.status(400).send(html);
                         });
@@ -95,7 +95,7 @@ app.post('/user', urlencodedParser, function(req,res){
                             if(err) {
                                 done(client);
                                 //errors still possible
-                                return res.render("user.ejs", {logged: req.session.logged, login:req.session.login, error:"Something went bad, contact fournier.clt@gmail.com."},
+                                return res.render("user.ejs", {logs: req.session, error:"Something went bad, contact fournier.clt@gmail.com."},
                                     function(err, html){
                                     res.status(400).send(html);
                                 });
@@ -106,7 +106,7 @@ app.post('/user', urlencodedParser, function(req,res){
                             req.session.logged = true;
                             req.session.login = req.body.nickname;
                             //Then respond it was created
-                            res.render("user.ejs", {logged: req.session.logged, login:req.session.login},
+                            res.render("user.ejs", {logs: req.session},
                                 function(err, html){
                                 res.status(202).send(html);
                             });
@@ -138,7 +138,7 @@ app.post('/login', urlencodedParser, function(req,res){
             if(error) {
                 console.log(error);
                 return res.render("user.ejs",
-                        {logged: req.session.logged, login:req.session.login, error:"Connection to database failed, try later."},
+                        {logs: req.session, error:"Connection to database failed, try later."},
                         function(err, html){
                         res.status(500).send(html);
                     });
@@ -176,11 +176,148 @@ app.get('/logout', function(req,res){
     res.status(200).redirect(req.referer || "/");
 });
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//~~~~~~~~~~~~~~~~Testouillons~~~~~~~~~~~~~~~~
+//~~~~~~~~~~~~~~~~SEARCH "ENGINE"~~~~~~~~~~~~~~~~
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-app.get("/user/truc",function(req,res){
-    res.status(200).render("index.ejs",{logged: req.session.logged, login:req.session.login, error:"Connection to database failed, try later."});
+app.get("/search",function(req,res){
+    res.status(200).render("search.ejs",
+        {logs: req.session,
+         research:{
+            "word":"",
+            "type":null,
+            "name":[]
+         }
+     });
 });
+//"create" a research
+app.post("/search", urlencodedParser, function(req,res){
+    //variable time 
+    var research = {
+        "word": req.body.word,
+        "type": req.body.type,
+        "name":[],
+        "path":[]
+    }
+    //must manage every kind of research
+    var querySearch = function(client,done,research,callback){
+        //characters research
+        if ( research.type == "Characs" ){
+            client.query("SELECT charId, charName FROM characs WHERE charName LIKE $1",
+                ['%'+research.word+'%'], function(err, result){
+                //error handling
+                if(err) {
+                  done(client);
+                  console.log(err);
+                  return res.sendStatus(500);
+                }
+                //push it in
+                for (var i = 0; i < result.rows.length; i++) {
+                    research.name.push(result.rows[i].charname);
+                    research.path.push(result.rows[i].charid)
+                }
+                //then respond
+                return callback(research);
+            });
+        //users research
+        } else if ( research.type == "User" ){
+            client.query("SELECT nickname FROM users WHERE nickname LIKE $1",
+                ['%'+research.word+'%'], function(err, result){
+                //error handy
+                if(err) {
+                  done(client);
+                  console.log(err);
+                  return res.sendStatus(500);
+                }
+                //push it to the max
+                for (var i = 0; i < result.rows.length; i++) {
+
+                    research.name.push(result.rows[i].nickname);
+                    research.path.push(result.rows[i].nickname);
+                }
+                //back to watt
+                return callback(research);
+            });
+        //univers
+        }else if ( research.type == "Univers" ){
+            client.query("SELECT universNbr, universName FROM univers WHERE universName LIKE $1",
+                ['%'+research.word+'%'], function(err, result){
+                //errors ?
+                if(err) {
+                  done(client);
+                  console.log(err);
+                  return res.sendStatus(500);
+                }
+                //arraying isn't a verb
+                for (var i = 0; i < result.rows.length; i++) {
+                    research.name.push(result.rows[i].universname);
+                    research.path.push(result.rows[i].universnbr);
+                }
+                //responding
+                return callback(research);
+            });
+        }else{ return res.status(400).send("This is not in my base"); }
+    }
+        //connect the DB
+    pg.connect(process.env.DATABASE_URL, function(err, client, done){
+        //handle err
+        if(err) {
+          done(client);
+          console.log(err);
+          return res.sendStatus(500);
+        }
+        //query the research
+        querySearch( client, done, research, function(research){
+            done(client);
+            res.render("search.ejs", {logs: req.session, research:research},
+                function(err, html){
+                res.status(202).send(html);
+            });
+        });
+    });
+});
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//~~~~~~~~~~~~~~~GETTING SERIOUS :~~~~~~~~~~~~~~~
+//~~~~~~~~~~~~~~~UNIVERS FORM~~~~~~~~~~~~~~~
+//~~~~~~~~~~~~~~~(first try)~~~~~~~~~~~~~~~
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+app.get("/univers", function(req,res){
+    res.setHeader("content-Type","text/html");
+    res.render('univers.ejs', {logs: req.session});
+});
+app.post("/univers", urlencodedParser, function(req,res){
+    //caring about the univers.
+    var queryUniv = function(universName, client, done, callback){
+        client.query("INSERT INTO univers (universName) VALUES ($1) RETURNING universNbr",[universName],
+            function(err,result){
+            if(err) {
+                done(client);
+                //errors if already exist
+                return res.status(400)
+                    .render('univers.ejs',
+                        {logs: req.session, error:"Name already taken."});
+            }
+            return callback(result.rows[0].universnbr);
+        });
+    }
+    pg.connect(process.env.DATABASE_URL, function(err, client, done){
+        //handle error
+        if(err) {
+            done(client);
+            console.log(err);
+            return res.sendStatus(500);
+        }
+        queryUniv(req.body.universName, client, done , function(universnbr){
+            done(client);
+            var urlUniv = "/univers/" + universnbr;
+            res.status(202)
+            .set({"location" : urlUniv })
+            .render('univers.ejs',
+                {logs: req.session, redirect:urlUniv});
+        });
+    });
+
+});
+
+
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //~~~~~~~~~~~~~~~ASSETS DIRECTIONS~~~~~~~~~~~~~~~

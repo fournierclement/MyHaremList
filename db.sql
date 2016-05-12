@@ -1,6 +1,8 @@
+
+/*
 CREATE DATABASE myharemlist;
 \connect myharemlist
-
+*/
 CREATE TABLE users
 (
  nickname varchar(30) NOT NULL PRIMARY KEY,
@@ -12,8 +14,9 @@ CREATE TABLE users
 
 CREATE TABLE univers
 (
- universId bigserial PRIMARY KEY,
- universName varchar(144) NOT NULL
+ universName varchar(144) PRIMARY KEY,
+ universNbr bigserial,
+ universDesc varchar(666)
 );
 
 CREATE TABLE characs
@@ -23,7 +26,7 @@ CREATE TABLE characs
  alterNames varchar(144),
  charGender Varchar(7) NOT NULL,
  charDesc varchar(666),
- universId bigserial REFERENCES univers(universId) ON DELETE CASCADE
+ universName varchar(144) REFERENCES univers(universName) ON DELETE CASCADE
 );
 
 CREATE TABLE harems
@@ -73,14 +76,10 @@ CREATE TRIGGER one_favorite
 
 
 --Tests :
-INSERT INTO univers (universName)
-    VALUES ('Fate/Stay');
-INSERT INTO characs (charName,alterNames,charGender,charDesc,universId)
-    VALUES ('Saber','Arthuria, Arthur, King of Knights, SABAAA.','Waifu','A virgin king carving for redemption',1);
-INSERT INTO characs (charName,alterNames,charGender,charDesc,universId)
-    VALUES ('Gilgamesh','Heres King', 'Husband','A highschooler who thinks everything belong to him.',1);
+INSERT INTO univers (universName,universDesc)
+    VALUES ('Fate/Stay','Why would you fight for the Graal when you can Catch them all');
+INSERT INTO characs (charName,alterNames,charGender,charDesc,universName)
+    VALUES ('Saber','Arthuria, Arthur, King of Knights, SABAAA.','Waifu','A virgin king carving for redemption','Fate/Stay');
+INSERT INTO characs (charName,alterNames,charGender,charDesc,universName)
+    VALUES ('Gilgamesh','Heres King', 'Husband','A highschooler who thinks everything belong to him.','Fate/Stay');
 
-/*
-\connect postgres
-DROP DATABASE myharemlist;
-*/

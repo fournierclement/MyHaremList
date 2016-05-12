@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>My Harem List</title>
+    <title>MyHaremList</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta charset="utf-8">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
@@ -9,7 +9,8 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
     <link rel="stylesheet" type="text/css" href="/MHL.css">
 </head>
-<body><nav class="navbar navbar-default navbar-fixed-top">
+<body>
+<nav class="navbar navbar-default navbar-fixed-top">
     <div class="container-fluid">
         <div class="navbar-header">
             <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
@@ -107,49 +108,30 @@
         </div>
     </div>
 </nav>
-<% if(logs.logged){ %>
-    <header class="bright-head" class="container-fluid">
-        <h1> You are logged as <%= logs.login %>.</h1>
-    </header>
-    <section class="bright-board" class="container-fluid">
-        <span> <a href="/">Back to the homepage</a></span>
-    </section>
-<% } %>
-<% if(! logs.logged){ %>
-    <header class="bright-head" class="container-fluid">
-        <H1>Sign up over here !</H1>
-    </header>
-    <% if(typeof(error)!='undefined') { %>
-        <section class="bright-board" class="container-fluid">
-            <span><%=error %> </span>
-        </section>
-    <% } %>
-    <section class="bright-board" class="container-fluid">
-        <form action="/user" method="post">
-            <p>
-                <label for="nickname">Nickname :</label>
-                <input type="text" name="nickname" id="nickname" autofocus required/>
-            </p>
-            <p>
-                <label for="email">Email :</label>
-                <input type="email" name="email" id="email" required/>
-            </p>
-            <p>
-                <label for="birth">Birthday :</label>
-                <input type="date" name="birth" id="birth" required/>
-            </p>
-            <p>
-                <label required for="gender">Gender :</label>
-                <input type="radio" name="gender" value="Husband">Husband 
-                <input type="radio" name="gender" value="Waifu">Waifu
-            </p>
-            <p>
-                <label for="password">Password :</label>
-                <input type="password" name="password" id="password" required/>
-            </p>
-            <input type="submit" />
-        </form>
-    </section>
+<header class="bright-head" class="container-fluid">
+    <h1>Univers Section !</h1>
+    <h5>Or multiversection.</h5>
+</header>
+<div class="bright-board" class="container-fluid">
+    <h3>Use the search page before adding a new univers</h3>
+    <h5>Heavy responsabilities rest on this action</h5>
+</div>
+<% if ( typeof( error ) != 'undefined' ) { %>
+    <div class="bright-head" class="container-fluid">
+        <span><%= error %></span>
+    </div>
 <% }; %>
+<% if ( typeof( redirect ) != 'undefined' ) { %>
+    <div class="bright-head" class="container-fluid">
+        <a href="<%= redirect %>">Created here</a>
+    </div>
+<% }; %>
+<div class="bright-board" class="container-fluid">
+    <form action="/univers" method="post">
+        <label for="universName">Name :</label>
+        <input type="text" name="universName" autofocus required/>
+        <input type="submit" value="Add">
+    </form>
+</div>
 </body>
 </html>
