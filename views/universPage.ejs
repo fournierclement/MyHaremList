@@ -109,33 +109,12 @@
     </div>
 </nav>
 <header class="bright-head" class="container-fluid">
-    <h1>Univers Section !</h1>
-    <h5>Or multiversection.</h5>
+    <h1 class="bright-cell"><%= itemData.Name %></h1>
 </header>
 <div class="bright-board" class="container-fluid">
-    <h3>Use the search page before adding a new univers</h3>
-    <h5>Heavy responsabilities rest on this action</h5>
-</div>
-<% if ( typeof( error ) != 'undefined' ) { %>
-    <div class="bright-head" class="container-fluid">
-        <span><%= error %></span>
-    </div>
-<% }; %>
-<% if ( typeof( redirect ) != 'undefined' ) { %>
-    <div class="bright-head" class="container-fluid">
-        <a href="<%= redirect %>">Created here</a>
-    </div>
-<% }; %>
-<div class="bright-board" class="container-fluid">
-    <form action="/univers" method="post">
-        <p>
-            <label for="universName">Name :</label>
-            <input type="text" name="universName" autofocus required/>
-        </p><p>
-            <textarea name="universDesc" minlength="20" maxlength="660" required>Describe it a bit, please...</textarea>
-        </p>
-        <input type="submit" value="Add">
-    </form>
+    <p>
+        <%= itemData.Desc %>
+    </p>
 </div>
 </body>
 </html>

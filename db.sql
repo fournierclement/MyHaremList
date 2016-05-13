@@ -1,15 +1,18 @@
-
 /*
+LAURENT@LIRMM.FR
+arnaud.castelltort@gmail.com
+(copie cachée)
+23h42
+support au choix.
+*/
 CREATE DATABASE myharemlist;
 \connect myharemlist
-*/
+
 CREATE TABLE users
 (
  nickname varchar(30) NOT NULL PRIMARY KEY,
  email varchar(63) NOT NULL UNIQUE,
- password varchar(144) NOT NULL,
- gender varchar(7) NOT NULL,
- birth DATE NOT NULL
+ password varchar(144) NOT NULL
 );
 
 CREATE TABLE univers

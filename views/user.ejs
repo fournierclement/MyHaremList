@@ -9,7 +9,8 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
     <link rel="stylesheet" type="text/css" href="/MHL.css">
 </head>
-<body><nav class="navbar navbar-default navbar-fixed-top">
+<body>
+<nav class="navbar navbar-default navbar-fixed-top">
     <div class="container-fluid">
         <div class="navbar-header">
             <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
@@ -73,7 +74,7 @@
                 <div name="logged">
                           <ul class="nav navbar-nav navbar-right">
                             <li>
-                                <a href="/harem/<%= login %>">
+                                <a href="/harem/<%= logs.login %>">
                                     MyHarem
                                 </a>
                             </li>
@@ -86,7 +87,7 @@
                                 </a>
                                 <ul class="dropdown-menu">
                                     <li>
-                                        <a href="/user/<%= login %>">My Profile</a>
+                                        <a href="/user/<%= logs.login %>">My Profile</a>
                                     </li>
                                     <li>
                                         <form action="/logout" method="get">
@@ -133,15 +134,6 @@
             <p>
                 <label for="email">Email :</label>
                 <input type="email" name="email" id="email" required/>
-            </p>
-            <p>
-                <label for="birth">Birthday :</label>
-                <input type="date" name="birth" id="birth" required/>
-            </p>
-            <p>
-                <label required for="gender">Gender :</label>
-                <input type="radio" name="gender" value="Husband">Husband 
-                <input type="radio" name="gender" value="Waifu">Waifu
             </p>
             <p>
                 <label for="password">Password :</label>

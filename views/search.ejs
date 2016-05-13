@@ -74,7 +74,7 @@
                 <div name="logged">
                           <ul class="nav navbar-nav navbar-right">
                             <li>
-                                <a href="/harem/<%= login %>">
+                                <a href="/harem/<%= logs.login %>">
                                     MyHarem
                                 </a>
                             </li>
@@ -87,7 +87,7 @@
                                 </a>
                                 <ul class="dropdown-menu">
                                     <li>
-                                        <a href="/user/<%= login %>">My Profile</a>
+                                        <a href="/user/<%= logs.login %>">My Profile</a>
                                     </li>
                                     <li>
                                         <form action="/logout" method="get">
@@ -116,9 +116,9 @@
         <label for="word">Name :</label>
         <input type="text" name="word" autofocus required/>
         <select name="type" id="table">
-            <option value="Characs">Characters</option>
-            <option value="Univers">Univers</option>
-            <option value="User">Users</option>
+            <option value="characs">Characters</option>
+            <option value="univers">Univers</option>
+            <option value="user">Users</option>
         </select>
         <input type="submit" value="Search">
     </form>
@@ -134,13 +134,17 @@
         <% } %>
     <!--else do -->
         <% if ( research.name.length > 0 ) { %>
+            <div class="row">
             <% for (i=0; i<research.name.length; i++) {%>
-                <a href="/<%= research.type %>/<%= research.path[i] %>">
-                    <span class="bright-cell">
-                        <%= research.name[i] %>
-                    </span>
-                </a>
+                <div class="col-sm-3">
+                    <a href="/<%= research.type %>/<%= research.path[i] %>">
+                        <span class="bright-cell">
+                            <%= research.name[i] %>
+                        </span>
+                    </a>
+                </div>
             <% } %>
+            </div>
         <% } %>
 </section>
 </body>
