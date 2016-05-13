@@ -16,6 +16,7 @@
         "cookie-session": "~1.1.0",
         "body-parser": "~1.10.1",
         "bcrypt":"~0.8.x"
+        "serve-favicon" : "~2.3.0"
     },
     "repository":{
         "type": "git",
