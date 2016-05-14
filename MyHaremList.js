@@ -77,7 +77,7 @@ app.post('/log', urlencodedParser, function(req,res){
             req.session.login = req.body.nickname;
             return res.status(302).redirect(req.referer || "/");
         }
-        else return res.sendStatus(400).redirect(req.referer || "/");
+        else return res.status(400).redirect(req.referer || "/");
     });
 });
 
