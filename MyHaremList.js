@@ -350,23 +350,28 @@ app.get("/:itemtype/:itemid", function(req,res,next){
         "Name"  : ""
     }
     var queryUniv = function(itemData, client, done, callback){
-        client.query("SELECT univers.universName, universDesc, characs.charId,characs.charname FROM univers,characs WHERE universnbr = $1 AND univers.universname = characs.universname",
+        client.query("SELECT univers.universName, universDesc FROM univers WHERE universnbr = $1",
             [itemData.Id],
             function(err,result){
-            itemData.Characs = [] ;
             if(err) {
                 return res.status(500).send("Oops, internal error.");
             }else if (typeof(result.rows[0])!='undefined') {
                 itemData.Name = result.rows[0].universname;
                 itemData.Desc = result.rows[0].universdesc;
-                for ( i = 0 ; i < result.rows.length ; i++ ) {
-                    itemData.Characs.push({
-                        CharId:result.rows[i].charid,
-                        CharName:result.rows[i].charname
-                    });
-                }
-                return callback(itemData);
+                return queryCharas(itemData,client,done,callback);
             }else {return res.status(404).send("This univers doesn't exist")}
+        });
+    }
+    var queryCharas = function(itemData,client,done,callback){
+        client.query("SELECT charid,charname FROM characs WHERE universname=$1",
+            [itemData.Name],function(err,result){
+            done(client);
+            if (err){
+                console.log(err);
+                return res.sendStatus(500);
+            }
+            itemData.Characs = result.rows
+            return callback(itemData)
         });
     }
 

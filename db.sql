@@ -4,10 +4,10 @@ arnaud.castelltort@gmail.com
 (copie cachée)
 23h42
 support au choix.
-*/
+*//*
 CREATE DATABASE myharemlist;
 \connect myharemlist
-
+*/
 CREATE TABLE users
 (
  nickname varchar(30) NOT NULL PRIMARY KEY,
