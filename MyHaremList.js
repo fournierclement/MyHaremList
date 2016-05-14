@@ -6,6 +6,11 @@ var urlencodedParser = bodyParser.urlencoded({ extended: false });
 var favicon = require('serve-favicon');
 var bcrypt = require('bcrypt');
 var pg = require('pg');
+
+//Get my modes
+var user = require('MHLusers');
+var harem = require('MHLharems');
+
 //INIT
 var app = express();
 app.set('port', (process.env.PORT || 5000));
@@ -49,8 +54,8 @@ app.get('/user', function(req,res){
 
 //Post the user
 app.post('/user', urlencodedParser, function(req,res){
-    //ending response if everything is aw... alright
-    var goodresponse = function(req,res) {
+    return user.postUser(req,res,function(req,res){
+        //ending response if everything is aw... alright
         req.session.logged = true;
         req.session.login = req.body.nickname;
         //Then respond it was created
@@ -58,136 +63,29 @@ app.post('/user', urlencodedParser, function(req,res){
             function(err, html){
             res.status(202).send(html);
         });
-    }
-    //Checking if the name's already in the DB (because i didn't made a parsing function in case of insert error)
-    var checkname = function (req,res,client,done,callback) {
-        client.query("SELECT nickname,email FROM users WHERE nickname = $1 OR email=$2",
-                    [req.body.nickname, req.body.email], function(err, result){
-            if(err) {
-                done(client);
-                //errors still possible
-                return res.render("user.ejs", {logs: req.session, error:"Something went bad, contact fournier.clt@gmail.com."},
-                    function(err, html){
-                    res.status(400).send(html);
-                });
-            }
-            var message = "";
-            for ( i = 0 ; i < result.rows.length ; i++) {
-                if(req.body.nickname == result.rows[i].nickname){ message += "Nickname already taken.\n" ; }
-                else if (req.body.email == result.rows[i].email){ message += "Email already use." ; }
-            }
-            return callback(req, res, client, done, message);
-        });
-    }
-    var insertname = function(req,res,client,done,callback){
-        client.query("INSERT INTO users (nickname, email, password) VALUES ($1,$2,$3)",
-            [req.body.nickname,req.body.email,req.body.password],
-            function(err,result) {
-            if(err) {
-                done(client);
-                console.log(err);
-                //errors still possible
-                return res.render("user.ejs", {logs: req.session, error:"Server Fail"},
-                    function(err, html){
-                    res.status(500).send(html);
-                });
-            }
-            //free the client
-            done(client);
-            return callback(req,res);
-        });
-    }
-//Script it before stocking it.
-    bcrypt.genSalt(10, function(err, salt) {
-        bcrypt.hash(req.body.password, salt, function(err, hash) {
-            req.body.password = hash;
-            //post it in the rdbsm
-            pg.connect(process.env.DATABASE_URL, function (err,client,done) {
-               //Handle connection to psql errors
-                if(err) {
-                    done(client);
-                    console.log(err);
-                    return res.render("user.ejs",
-                            {logs: req.session, error:"Connection to database failed, try later."},
-                            function(err, html){
-                            res.status(500).send(html);
-                        });
-                }
-                //Check it
-                checkname(req,res, client,done,function(req,res,client,done,message){
-                    if( message != "" ) {
-                        done(client);
-                        return res.render("user.ejs",
-                                {logs: req.session, error:message},
-                                function(err, html){
-                                res.status(400).send(html);
-                        });
-                    }
-                    //let it flow.
-                    return insertname(req,res,client,done,goodresponse);
-                });
-            });
-        });
     });
 });
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //~~~~~~~~~~~~~~~LOGGING IN / CHECKING DATABASE~~~~~~~~~~~~~~~
 //~~~~~~~~~~~~~~~POST LOGIN / GET LOGOUT~~~~~~~~~~~~~~~
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// "Create" a connection 
-app.post('/login', urlencodedParser, function(req,res){
-
-    pg.connect(process.env.DATABASE_URL, function(err, client, done) {
-        // Handle connection errors
-        if(err) {
-          done(client);
-          console.log(err);
-          return res.sendStatus(500);
+//"Create" a connection 
+app.post('/log', urlencodedParser, function(req,res){
+    return user.logUser(req,res,function(req,res,test){
+        if (test == true) {
+            req.session.logged = true;
+            req.session.login = req.body.nickname;
+            return res.status(302).redirect(req.referer || "/");
         }
-        //Querying the password
-        var query = client.query("SELECT password FROM users WHERE nickname = $1",
-            [req.body.nickname]);
-
-        query.on('error', function(error) {
-            if(error) {
-                console.log(error);
-                return res.render("user.ejs",
-                        {logs: req.session, error:"Connection to database failed, try later."},
-                        function(err, html){
-                        res.status(500).send(html);
-                    });
-            }
-        });
-        var result;
-        var test;
-        query.on('row', function(row){
-            //taking the line (should be alone anyway)
-            result = row;
-        }),
-        query.on('end', function(){
-            bcrypt.compare(req.body.password,result.password, function(err, test) {
-                done(client);
-                if( test == true ) {
-                    //success cookie time
-                    req.session.logged = true;
-                    req.session.login = req.body.nickname;
-                    //Then respond
-                    res.status(200).redirect(req.referer || "/");
-                }
-                else if (test == false) {
-                    //fail go back to the kitchen
-                    res.status(400).redirect(req.referer || "/");
-                }
-            });
-        });
+        else return res.sendStatus(400).redirect(req.referer || "/");
     });
 });
 
-//"GET" a deconnection (yeah, i fixed it.)
-app.get('/logout', function(req,res){
+//"Delete" a connection
+app.delete('/log', function(req,res){
     req.session.logged=false;
     req.session.login="Visitor";
-    res.status(200).redirect(req.referer || "/");
+    return res.sendStatus('Ok');
 });
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //~~~~~~~~~~~~~~~~SEARCH "ENGINE"~~~~~~~~~~~~~~~~
@@ -521,71 +419,26 @@ app.get("/user/:iduser/:idharem", function(req,res,next){
 //~~~~~~~~~~~~~~~POST "/user/user(/harem")~~~~~~~~~~~~~~~
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 app.post("/user/:iduser",urlencodedParser, function(req,res){
-    var insertHarem = function(req,res,client,done,callback){
-        client.query("INSERT INTO harems (nickname,haremname,haremdesc) VALUES ($1,$2,$3) RETURNING haremid",
-            [req.params.iduser,req.body.haremName,req.body.haremDesc], function(err,result){
-            done(client);
-            if(err){
-                console.log(err);
-                return res.sendStatus(500);
-            }
-            return callback(result.rows[0].idharem,req,res);
-        });
-    }
-    var responding = function(idharem,req,res){
+    return harem.insertHarem(req,res, function(req,res,idharem){
         return res.set({
             "code":202,
             "location":("/user/"+req.params.iduser+"/"+idharem)
-        })
-        .redirect(("/user/"+req.params.iduser));
-    }
-    if (req.session.login != req.params.iduser) {
-        return res.status(401).send("You aren't authentified ")
-    }else{
-        pg.connect(process.env.DATABASE_URL,function(err,client,done){
-            if (err) {
-                console.log(err);
-                return res.sendStatus(500);
-            }
-            insertHarem(req,res,client,done,responding);
-        });
-    }
+            })
+            .redirect(("/user/"+req.params.iduser));
+    });
 });
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //~~~~~~~~~~~~~~~POST WEDDINGS~~~~~~~~~~~~~~~
 //~~~~~~~~~~~~~~~POST "/user/user/harem/(idchar)"~~~~~~~~~~~~~~~
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 app.post("/user/:iduser/:idharem", urlencodedParser, function(req,res){
-    var insertWedding = function(req,res,client,done,callback){
-        client.query("INSERT INTO weddings (haremid, charid, weddesc, favorite) VALUES ($1,$2,$3,$4)",
-            [req.params.idharem, req.body.CharId, req.body.WedDesc, req.body.Favorite],
-            function(err,result){
-            done(client);
-            if(err){
-                console.log(err);
-                return res.sendStatus(500);
-            }
-            return callback(req.body.CharId, req, res);
-        });
-    }
-    var responding = function(idwedding, req, res){
+    return harem.insertWedding(req,res,function(req,res,idwedding){
         return res.set({
             "code":202,
             "location":("/user/"+req.params.iduser+"/"+req.params.idharem+"/"+idwedding)
-        })
-        .redirect(("/user/"+req.params.iduser+"/"+req.params.idharem));
-    }
-    if (req.session.login != req.params.iduser) {
-        return res.status(401).send("You aren't authentified ")
-    }else{
-        pg.connect(process.env.DATABASE_URL,function(err,client,done){
-            if (err) {
-                console.log(err);
-                return res.sendStatus(500);
-            }
-            insertWedding(req,res,client,done,responding);
-        });
-    }
+            })
+            .redirect(("/user/"+req.params.iduser+"/"+req.params.idharem));
+    })
 });
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //~~~~~~~~~~~~~~~POST /CHARACS~~~~~~~~~~~~~~~
