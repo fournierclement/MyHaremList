@@ -85,7 +85,7 @@ app.post('/log', urlencodedParser, function(req,res){
 app.delete('/log', function(req,res){
     req.session.logged=false;
     req.session.login="Visitor";
-    return res.sendStatus('Ok');
+    return res.status('Ok').end();
 });
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //~~~~~~~~~~~~~~~~SEARCH "ENGINE"~~~~~~~~~~~~~~~~
