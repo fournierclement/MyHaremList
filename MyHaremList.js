@@ -149,9 +149,9 @@ app.post("/search", urlencodedParser, function(req,res){
                 //back to watt
                 return callback(research);
             });
-        //univers
-        }else if ( research.type == "univers" ){
-            client.query("SELECT universNbr, universName FROM univers WHERE universName LIKE $1",
+        //universe
+        }else if ( research.type == "universe" ){
+            client.query("SELECT universeNbr, universeName FROM universe WHERE universeName LIKE $1",
                 ['%'+research.word+'%'], function(err, result){
                 //errors ?
                 if(err) {
@@ -161,8 +161,8 @@ app.post("/search", urlencodedParser, function(req,res){
                 }
                 //arraying isn't a verb
                 for (var i = 0; i < result.rows.length; i++) {
-                    research.name.push(result.rows[i].universname);
-                    research.path.push(result.rows[i].universnbr);
+                    research.name.push(result.rows[i].universename);
+                    research.path.push(result.rows[i].universenbr);
                 }
                 //responding
                 return callback(research);
@@ -189,32 +189,32 @@ app.post("/search", urlencodedParser, function(req,res){
 });
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //~~~~~~~~~~~~~~~UNIVERS FORM~~~~~~~~~~~~~~~
-//~~~~~~~~~~~~~~~GET/POST "/univers"~~~~~~~~~~~~~~~
+//~~~~~~~~~~~~~~~GET/POST "/universe"~~~~~~~~~~~~~~~
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//~~~~~~~~~~~~~~~Get univers~~~~~~~~~~~~~~~
-app.get("/univers", function(req,res){
+//~~~~~~~~~~~~~~~Get universe~~~~~~~~~~~~~~~
+app.get("/universe", function(req,res){
     res.setHeader("content-Type","text/html");
-    res.render('univers.ejs', {logs: req.session});
+    res.render('universe.ejs', {logs: req.session});
 });
-//~~~~~~~~~~~~~~~POST univers~~~~~~~~~~~~~~~
-app.post("/univers", urlencodedParser, function(req,res){
-    var universData = {
-        "name" : req.body.universName,
-        "desc" : req.body.universDesc
+//~~~~~~~~~~~~~~~POST universe~~~~~~~~~~~~~~~
+app.post("/universe", urlencodedParser, function(req,res){
+    var universeData = {
+        "name" : req.body.universeName,
+        "desc" : req.body.universeDesc
     }
-    //caring about the univers.
-    var queryUniv = function(universDate, client, done, callback){
-        client.query("INSERT INTO univers (universName,universDesc) VALUES ($1,$2) RETURNING universNbr",
-            [universData.name, universData.desc],
+    //caring about the universe.
+    var queryUniv = function(universeDate, client, done, callback){
+        client.query("INSERT INTO universe (universeName,universeDesc) VALUES ($1,$2) RETURNING universeNbr",
+            [universeData.name, universeData.desc],
             function(err,result){
             if(err) {
                 done(client);
                 //errors if already exist
                 return res.status(400)
-                    .render('univers.ejs',
+                    .render('universe.ejs',
                         {logs: req.session, error:"Name already taken."});
             }
-            return callback(result.rows[0].universnbr);
+            return callback(result.rows[0].universenbr);
         });
     }
     pg.connect(process.env.DATABASE_URL, function(err, client, done){
@@ -224,12 +224,12 @@ app.post("/univers", urlencodedParser, function(req,res){
             console.log(err);
             return res.sendStatus(500);
         }
-        queryUniv(universData, client, done , function(universnbr){
+        queryUniv(universeData, client, done , function(universenbr){
             done(client);
-            var urlUniv = "/univers/" + universnbr;
+            var urlUniv = "/universe/" + universenbr;
             res.status(202)
             .set({"location" : urlUniv })
-            .render('univers.ejs',
+            .render('universe.ejs',
                 {logs: req.session, redirect:urlUniv});
         });
     });
@@ -238,30 +238,30 @@ app.post("/univers", urlencodedParser, function(req,res){
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //~~~~~~~~~~~~~~~~TYPE PAGE~~~~~~~~~~~~~~~~
 //~~~~~~~~~~~~~~~GET "/type/ressource"~~~~~~~~~~~~~~~
-//~~~~~~~~~~~~~~~for characters/univers/users~~~~~~~~~~~~~~~
+//~~~~~~~~~~~~~~~for characters/universe/users~~~~~~~~~~~~~~~
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 app.get("/:itemtype/:itemid", function(req,res,next){
     //The object we're stocking data into
     var itemData = {
         "Type"  : req.params.itemtype, //string for users, id for others.
-        "Id"    : req.params.itemid, //in character, user, univers.
+        "Id"    : req.params.itemid, //in character, user, universe.
         "Name"  : ""
     }
     var queryUniv = function(itemData, client, done, callback){
-        client.query("SELECT univers.universName, universDesc FROM univers WHERE universnbr = $1",
+        client.query("SELECT universe.universeName, universeDesc FROM universe WHERE universenbr = $1",
             [itemData.Id],
             function(err,result){
             if(err) {
                 return res.status(500).send("Oops, internal error.");
             }else if (typeof(result.rows[0])!='undefined') {
-                itemData.Name = result.rows[0].universname;
-                itemData.Desc = result.rows[0].universdesc;
+                itemData.Name = result.rows[0].universename;
+                itemData.Desc = result.rows[0].universedesc;
                 return queryCharas(itemData,client,done,callback);
-            }else {return res.status(404).send("This univers doesn't exist")}
+            }else {return res.status(404).send("This universe doesn't exist")}
         });
     }
     var queryCharas = function(itemData,client,done,callback){
-        client.query("SELECT charid,charname FROM characs WHERE universname=$1",
+        client.query("SELECT charid,charname FROM characs WHERE universename=$1",
             [itemData.Name],function(err,result){
             done(client);
             if (err){
@@ -288,7 +288,7 @@ app.get("/:itemtype/:itemid", function(req,res,next){
         });
     }
     var queryChar = function(itemData, client, done, callback){
-        client.query("SELECT charname, alternames, chargender, chardesc, univers.universname, universnbr FROM characs, univers WHERE charid = $1 AND characs.universname = univers.universname",
+        client.query("SELECT charname, alternames, chargender, chardesc, universe.universename, universenbr FROM characs, universe WHERE charid = $1 AND characs.universename = universe.universename",
             [itemData.Id],
             function(err,result){
             if(err) {
@@ -298,8 +298,8 @@ app.get("/:itemtype/:itemid", function(req,res,next){
                 itemData.AlterNames = result.rows[0].alternames;
                 itemData.Gender = result.rows[0].chargender;
                 itemData.Desc   = result.rows[0].chardesc;
-                itemData.Parent = result.rows[0].universname;
-                itemData.IdParent = result.rows[0].universnbr;
+                itemData.Parent = result.rows[0].universename;
+                itemData.IdParent = result.rows[0].universenbr;
                 return callback(itemData,client,done);
             } else { return res.status(404).send("This character doesn't exist") }
         });
@@ -349,7 +349,7 @@ app.get("/:itemtype/:itemid", function(req,res,next){
                 return queryHarem(itemData.Id,itemData,client,done,responding);
             });
         }
-        else if (itemData.Type == "univers") {
+        else if (itemData.Type == "universe") {
             queryUniv(itemData, client, done, responding);
         }else { done(client) ; return next() ; }
     })
@@ -445,8 +445,8 @@ app.post("/user/:iduser/:idharem", urlencodedParser, function(req,res){
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 app.post('/characs', urlencodedParser, function(req,res){
     var insertChar = function(req,res,client,done,callback){
-        client.query("INSERT INTO characs (charname,alternames, chargender,chardesc,universname) VALUES ($1,$2,$3,$4,$5) RETURNING charId",
-            [req.body.CharName, req.body.AlterNames, req.body.CharGender, req.body.CharDesc, req.body.UniversName],
+        client.query("INSERT INTO characs (charname,alternames, chargender,chardesc,universename) VALUES ($1,$2,$3,$4,$5) RETURNING charId",
+            [req.body.CharName, req.body.AlterNames, req.body.CharGender, req.body.CharDesc, req.body.UniverseName],
             function(err,result){
             done(client);
             if (err) {
