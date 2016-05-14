@@ -73,11 +73,6 @@
     <!-- This whole part of the nav bar is displayed for logged-->
                 <div name="logged">
                           <ul class="nav navbar-nav navbar-right">
-                            <li>
-                                <a href="/harem/<%= logs.login %>">
-                                    MyHarem
-                                </a>
-                            </li>
                             <li class="dropdown">
                                 <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                                     <span class="glyphicon glyphicon-user"> <%= logs.login%>
@@ -116,5 +111,42 @@
         <%= itemData.Desc %>
     </p>
 </div>
+<div class="bright-board" class="container-fluid">
+    <button data-toggle="collapse" data-target="#New">New Character</button>
+    <div id="New" class="collapse">
+        <form action="/characs" method="post">
+            <p>
+                Name :</p><p>
+                <input type="text" name="CharName" autofocus required/>
+            </p><p>
+                Alternatives Names :</p><p>
+                <input type="text" name="AlterNames" required/>
+            </p><p>
+                Describe it a bit:</p><p>
+                <textarea name="CharDesc" minlength="30" maxlength="660" required></textarea>
+            </p><p>
+            <input type="radio" name="CharGender" value="Husband">Husband
+            <input type="radio" name="CharGender" value="Waifu">Waifu
+            </p>
+            <input hidden name="UniversName" value="<%= itemData.Name %>"/>
+            <input type="submit" value="add"/>
+        </form>
+    </div>
+</div>
+<% if ( itemData.Characs.length > 0 ) { %>
+<section class="bright-board" class="container-fluid">
+    <div class="row">
+        <% for (i=0; i < itemData.Characs.length; i++) {%>
+            <div class="col-sm-3">
+                <a href="/characs/<%= itemData.Characs[i].CharId %>">
+                    <span class="bright-cell">
+                        <%= itemData.Characs[i].CharName %>
+                    </span>
+                </a>
+            </div>
+        <% } %>
+    </div>
+</section>
+<% } %>
 </body>
 </html>

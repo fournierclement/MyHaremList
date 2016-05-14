@@ -103,47 +103,37 @@
         </div>
     </div>
 </nav>
-<header class="bright-head" class="container-fluid">
-    <h1 class="bright-cell">
-    Search : <%= research.word %>
-    </h1>
-    <form action="/search" method="post">
-        <label for="word">Name :</label>
-        <input type="text" name="word" autofocus required/>
-        <select name="type" id="table">
-            <option value="characs">Characters</option>
-            <option value="univers">Univers</option>
-            <option value="user">Users</option>
-        </select>
-        <input type="submit" value="Search">
-    </form>
+<header class="bright-head">
+    <div class="bright-cell">
+    <h1><%= harem.haremname %></h1>
+    <h3>harem of <%= harem.haremowner %>
+    </div>
+    <p>
+        <%= harem.haremdesc %>
+    </p>
 </header>
-<div class="bright-board" class="container-fluid">
-<span>You can add a character from the univers it belongs to, and add a univers from <a href="/univers">here</a></span>
-</div>
-<section class="bright-board" class="container-fluid">
-    <!--Before research -->
-        <% if (research.type == null) { %> 
-            <span>What are you looking for ?</span>
-        <% } %>
-    <!--If nothing's found -->
-        <% if ( (research.name.length == 0) && research.type != null ) { %> 
-            <h3>No match found.</h3>
-        <% } %>
-    <!--else do -->
-        <% if ( research.name.length > 0 ) { %>
-            <div class="row">
-            <% for (i=0; i<research.name.length; i++) {%>
-                <div class="col-sm-3">
-                    <a href="/<%= research.type %>/<%= research.path[i] %>">
-                        <span class="bright-cell">
-                            <%= research.name[i] %>
-                        </span>
-                    </a>
+<section class="bright-board">
+    <div class="panel-group" id="accordion">
+        <% for ( i = 0 ; i < harem.weddings.length ; i++) { %>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h2 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#accordion" href="#collapse<%=i %>">
+                        <%= harem.weddings[i].charname %>
+                        </a>
+                    </h2>
                 </div>
-            <% } %>
+                <div id="collapse<%=i %>" class="panel-collapse collapse in">
+                    <div class="panel-body">
+                    <%= harem.weddings[i].weddesc %>
+                        <a href="/characs/<%= harem.weddings[i].charid %>">
+                        -> <%= harem.weddings[i].charname %>
+                        </a>
+                    </div>
+                </div>
             </div>
-        <% } %>
+      <% } %>
+    </div> 
 </section>
 </body>
 </html>

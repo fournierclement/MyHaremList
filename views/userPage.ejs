@@ -73,11 +73,6 @@
     <!-- This whole part of the nav bar is displayed for logged-->
                 <div name="logged">
                           <ul class="nav navbar-nav navbar-right">
-                            <li>
-                                <a href="/harem/<%= logs.login %>">
-                                    MyHarem
-                                </a>
-                            </li>
                             <li class="dropdown">
                                 <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                                     <span class="glyphicon glyphicon-user"> <%= logs.login%>
@@ -114,5 +109,35 @@
 <div class="bright-board" class="container-fluid">
     <h3><%= itemData.Email %></h3>
 </div>
+<% if (itemData.Id == logs.login) { %>
+    <div class="bright-board" class="container-fluid">
+        <button data-toggle="collapse" data-target="#New">New harem</button>
+        <div id="New" class="collapse">
+            <form action="/user/<%= itemData.Id %>" method="post">
+                <p>
+                    Name :</p><p>
+                    <input type="text" name="haremName" autofocus required/>
+                </p><p>
+                    Describe it a bit:</p><p>
+                    <textarea name="haremDesc" minlength="30" maxlength="660" required></textarea>
+                </p>
+                <input type="submit" value="Create">
+            </form>
+        </div>
+    </div>
+<% } %>
+<% if (typeof(itemData.harems)!='undefined') { %>
+    <section class="bright-board">
+    <p>Visit <%= itemData.Name %> 's harems :</p>
+        <!-- display the harems -->
+        <% for ( i = 0 ; i < itemData.harems.length ; i++ ) { %>
+            <div class="bright-cell">
+                <a href="/user/<%= itemData.Id %>/<%= itemData.harems[i].haremid %>">
+                <%= itemData.harems[i].haremname %>
+                </a>
+            </div>
+        <% } %>
+    </section>
+<% } %>
 </body>
 </html>

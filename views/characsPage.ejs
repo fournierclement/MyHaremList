@@ -73,11 +73,6 @@
     <!-- This whole part of the nav bar is displayed for logged-->
                 <div name="logged">
                           <ul class="nav navbar-nav navbar-right">
-                            <li>
-                                <a href="/harem/<%= logs.login %>">
-                                    MyHarem
-                                </a>
-                            </li>
                             <li class="dropdown">
                                 <a class="dropdown-toggle" data-toggle="dropdown" href="#">
                                     <span class="glyphicon glyphicon-user"> <%= logs.login%>
@@ -112,7 +107,7 @@
     <h1 class="bright-cell"><%= itemData.Name %></h1>
     <p><%= itemData.AlterNames %></p>
 </header>
-<div class="bright-board" class="container-fluid">
+<section class="bright-board" class="container-fluid">
     <a href="/univers/<%= itemData.IdParent %>">
         <h2 class="bright-cell">From <%= itemData.Parent %></h2>
     </a>
@@ -120,6 +115,34 @@
     <p>
         <%= itemData.Desc %>
     </p>
-</div>
+</section>
+<!-- From here, you can add character to your harems -->
+<% if (typeof(itemData.harems)!='undefined') { %>
+    <section class="bright-board">
+    <p class="bright-cell">You can add this character to your harems :</p>
+        <!-- display the harems -->
+        <% for ( i = 0 ; i < itemData.harems.length ; i++ ) { %>
+            <div class="bright-cell" class="container-fluid">
+                <button data-toggle="collapse" data-target="#WedIt<%=i %>">Wed it</button>
+                <a href="/user/<%= logs.login %>/<%= itemData.harems[i].haremid %>">
+                <%= itemData.harems[i].haremname %>
+                </a>
+                <div id="WedIt<%=i %>" class="collapse">
+                    <form action="/user/<%= logs.login %>/<%= itemData.harems[i].haremid %>" method="post">
+                        <p>
+                            Comment your wedding:
+                        </p><p>
+                            <textarea name="WedDesc" minlength="30" maxlength="660" required></textarea>
+                        </p><p>
+                        <input type="checkbox" name="Favorite">Favorite of the harem
+                        </p>
+                        <input hidden name="CharId" value="<%= itemData.Id %>"/>
+                        <input type="submit" value="add"/>
+                    </form>
+                </div>
+            </div>
+        <% } %>
+    </section>
+<% } %>
 </body>
 </html>
