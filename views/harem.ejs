@@ -5,28 +5,51 @@
 <header class="bright-head">
     <div class="bright-cell">
     <h1><%= harem.haremname %></h1>
-    <h3>harem of <%= harem.haremowner %>
+    <h3>harem of 
+        <a href="/user/<%= harem.nickname %>">
+        <%= harem.nickname %>
+        </a>
+    </h3>
     </div>
     <p>
         <%= harem.haremdesc %>
     </p>
 </header>
+<% if (harem.nickname == logs.login) { %>
+    <script type="text/javascript">
+    var deleteWedding = function(user,haremid,wedding){
+        $.ajax({
+            url:('/user/'+user+'/'+haremid+'/'+wedding),
+            type:'delete',
+            success:function(result,status){
+                return location.reload(true);
+            }
+        });
+    }
+    </script>
+<% } %>
 <section class="bright-board">
     <div class="panel-group" id="accordion">
-        <% for ( i = 0 ; i < harem.weddings.length ; i++) { %>
+        <% for ( i = 0 ; i < weddings.length ; i++) { %>
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h2 class="panel-title">
+                    <% if (harem.nickname == logs.login) { %>
+                        <button onclick="deleteWedding('<%=harem.nickname%>',
+                        '<%=harem.haremid%>','<%=weddings[0].charid%>')">
+                            X
+                        </button>
+                    <% } %>
                         <a data-toggle="collapse" data-parent="#accordion" href="#collapse<%=i %>">
-                        <%= harem.weddings[i].charname %>
+                        <%= weddings[i].charname %>
                         </a>
                     </h2>
                 </div>
                 <div id="collapse<%=i %>" class="panel-collapse collapse in">
                     <div class="panel-body">
-                    <%= harem.weddings[i].weddesc %>
-                        <a href="/characs/<%= harem.weddings[i].charid %>">
-                        -> <%= harem.weddings[i].charname %>
+                    <%= weddings[i].weddesc %>
+                        <a href="/characs/<%= weddings[i].charid %>">
+                        -> <%= weddings[i].charname %>
                         </a>
                     </div>
                 </div>

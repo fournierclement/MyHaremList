@@ -10,6 +10,63 @@
     <h3><%= itemData.Email %></h3>
 </div>
 <% if (itemData.Id == logs.login) { %>
+<script>
+var editUser = function(){
+    if($('#password').val()!="" 
+        && $('#newpassword').val()!="" 
+        && $('#newemail').val()!=""){
+        $.ajax({
+            url:'/user/<%= itemData.Id %>',
+            type:'PUT',
+            data:{password:$('#password').val(),
+                newpassword:$('#newpassword').val(),
+                newemail:$('#newemail').val()
+            },
+            success:function(result,status){
+                return location.reload(true);
+            }
+        });
+    }
+}
+var deleteUser = function(){
+    $.ajax({ url:'/user/<%= itemData.Id %>', type:'DELETE',
+        data:{password:$('#password').val()},
+        success:function(result,status){
+            return $.ajax({
+                url:'/log', type:'delete',success:function(result,status)
+                {return location.href = '/user'}
+            });
+        }
+    });
+};
+var deleteHarem = function(user,haremid){
+    $.ajax({
+        url:('/user/'+user+'/'+haremid),
+        type:'delete',
+        success:function(result,status){
+            return location.reload(true);
+        }
+    });
+}
+</script>
+<!-- edit user button -->
+    <div class="bright-board" class="container-fluid">
+        <button data-toggle="collapse" data-target="#Edit">edit User</button>
+        <div id="Edit" class="collapse">
+            <form>
+                <p>New email</p><p>
+                    <input type="email" name="newemail" id="newemail" value="<%= itemData.Email %>" required/>
+                </p><p>New password:</p><p>
+                    <input type="password" name="newpassword" id="newpassword" required/>
+                </p><p>Old password:</p><p>
+                    <input type="password" name="password" id="password" required>
+                </p>
+                </form>
+                <button onclick="editUser();">Edit User</button>
+                <button onclick="deleteUser();">Delete User</button>
+        </div>
+    </div>
+<!-- Newharem buttons -->
     <div class="bright-board" class="container-fluid">
         <button data-toggle="collapse" data-target="#New">New harem</button>
         <div id="New" class="collapse">
@@ -32,6 +89,12 @@
         <!-- display the harems -->
         <% for ( i = 0 ; i < itemData.harems.length ; i++ ) { %>
             <div class="bright-cell">
+                <% if (itemData.Id == logs.login) { %>
+                <button onclick="deleteHarem('<%= itemData.Id %>',
+                    '<%=itemData.harems[i].haremid%>')">
+                    X
+                </button>
+                <% } %>
                 <a href="/user/<%= itemData.Id %>/<%= itemData.harems[i].haremid %>">
                 <%= itemData.harems[i].haremname %>
                 </a>

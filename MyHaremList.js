@@ -3,14 +3,13 @@ var express = require('express');
 var cookie = require('cookie-session');
 var bodyParser = require('body-parser');
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
-var favicon = require('serve-favicon');
 var bcrypt = require('bcrypt');
 var pg = require('pg');
 
 //Get my modes
 var user = require('MHLusers');
 var harem = require('MHLharems');
-
+var universe =require('MHLuniverse');
 //INIT
 var app = express();
 app.set('port', (process.env.PORT || 5000));
@@ -26,7 +25,7 @@ app.use(cookie({
 }))
 //If you are noone, be our guest.
 .use(function(req,res,next){
-    //THOSE ARE COOKIES
+    //Those are cookies
     if (typeof(req.session.logged) == 'undefined') {
         req.session.logged = false;
         req.session.login = "Visitor";
@@ -43,8 +42,8 @@ app.get('/', function(req, res) {
     res.render('index.ejs', {logs: req.session});
 });
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//~~~~~~~~~~~~~~~SIGNING UP/FILL THE DATABASE~~~~~~~~~~~~~~~
-//~~~~~~~~~~~~~~~POST/GET "/user"~~~~~~~~~~~~~~~
+//~~~~~~~~~~~~~~~SIGNING UP user~~~~~~~~~~~~~~~
+//~~~~~~~~~~~~~~~POST/GET/PUT/DELETE "/user"~~~~~~~~~~~~~~~
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //Get the form page
 app.get('/user', function(req,res){
@@ -65,11 +64,35 @@ app.post('/user', urlencodedParser, function(req,res){
         });
     });
 });
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//~~~~~~~~~~~~~~~LOGGING IN / CHECKING DATABASE~~~~~~~~~~~~~~~
-//~~~~~~~~~~~~~~~POST LOGIN / GET LOGOUT~~~~~~~~~~~~~~~
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//"Create" a connection 
+//update the user
+app.put('/user/:iduser', urlencodedParser, function(req,res){
+    req.body.nickname = req.params.iduser;
+    return user.logUser(req,res,function(req,res,test){
+        if(test){
+            return user.editUser(req,res,function(req,res){
+                return res.sendStatus(202);
+            });
+        }
+        else{ return res.sendStatus(401) ;}
+    });
+});
+//delete the user
+app.delete('/user/:iduser', urlencodedParser, function(req,res){
+    req.body.nickname = req.params.iduser;
+    return user.logUser(req,res,function(req,res,test){
+        if(test){
+            return user.deleteUser(req,res,function(req,res){
+                return res.sendStatus(202);
+            });
+        }
+        else{ return res.sendStatus(401) ;}
+    });
+});
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//~~~~~~~~~~~~~~~LOGGING IN ~~~~~~~~~~~~~~~
+//~~~~~~~~~~~~~~~loggin out~~~~~~~~~~~~~~~
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//"Create" a connection/cookie/passcard
 app.post('/log', urlencodedParser, function(req,res){
     return user.logUser(req,res,function(req,res,test){
         if (test == true) {
@@ -85,7 +108,93 @@ app.post('/log', urlencodedParser, function(req,res){
 app.delete('/log', function(req,res){
     req.session.logged=false;
     req.session.login="Visitor";
-    return res.status(200).end();
+    return res.sendStatus(200);
+});
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//~~~~~~~~~~~~~~~HAREM LISTS~~~~~~~~~~~~~~~
+//~~~~~~~~~~~~~~~GET/POST/DELETE)~~~~~~~~~~~~~~~
+//~~~~~~~~~~~~~~~"/user/username/harem"~~~~~~~~~~~~~~~
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//~~~~~~~~~~~~~~~POST "/user/user(/harem")~~~~~~~~~~~~~~~
+app.post("/user/:iduser",urlencodedParser, function(req,res){
+    return harem.insertHarem(req,res, function(req,res,idharem){
+        return res.set({
+            "code":202,
+            "location":("/user/"+req.params.iduser+"/"+idharem)
+            })
+            .redirect(("/user/"+req.params.iduser));
+    });
+});
+//~~~~~~~~~~~~~~~Get /user/user/harem~~~~~~~~~~~~~~~
+app.get("/user/:iduser/:idharem", function(req,res,next){
+    return harem.getHaremById(req,res,function(req,res,harem,weddings){
+        if (harem[0] != 'undefined') {
+            res.render("harem.ejs",{logs:req.session,harem:harem,weddings:weddings}
+                ,function(err,html){
+                if(err){
+                    console.log(err);
+                    return res.sendStatus(500);
+                }
+                return res.status(200).send(html);
+            });
+        }else { return next(); }
+    });
+});
+//delete /user/user/harem
+app.delete("/user/:iduser/:idharem", function(req,res,next){
+    return harem.deleteHarem(req,res,function(req,res){
+        return res.sendStatus(202);
+    });
+});
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//~~~~~~~~~~~~~~~POST/DELETE WEDDINGS~~~~~~~~~~~~~~~
+//~~~~~~~~~~~~~~~POST "/user/user/harem/(idchar)"~~~~~~~~~~~~~~~
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+app.post("/user/:iduser/:idharem", urlencodedParser, function(req,res){
+    return harem.insertWedding(req,res,function(req,res,idwedding){
+        return res.set({
+            "code":202,
+            "location":("/user/"+req.params.iduser+"/"+req.params.idharem+"/"+idwedding)
+            })
+            .redirect(("/user/"+req.params.iduser+"/"+req.params.idharem));
+    });
+});
+app.delete("/user/:iduser/:idharem/:idwedding", urlencodedParser, function(req,res){
+    return harem.deleteWedding(req,res,function(req,res){
+        return res.sendStatus(202);
+    });
+});
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//~~~~~~~~~~~~~~~UNIVERS FORM~~~~~~~~~~~~~~~
+//~~~~~~~~~~~~~~~GET/POST "/universe"~~~~~~~~~~~~~~~
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//~~~~~~~~~~~~~~~Get universe~~~~~~~~~~~~~~~
+app.get("/universe", function(req,res){
+    res.setHeader("content-Type","text/html");
+    res.render('universe.ejs', {logs: req.session});
+});
+//~~~~~~~~~~~~~~~POST universe~~~~~~~~~~~~~~~
+app.post("/universe", urlencodedParser, function(req,res){
+    return universe.insertUniverse(req,res,function(req,res,universenbr){
+        res.render("universe.ejs",{logs: req.session, redirect:("/universe/" + universenbr)},
+            function(err,html){
+            return res.status(202)
+                .set({"location":("/universe/" + universenbr)}).send(html);
+        });
+    });
+});
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//~~~~~~~~~~~~~~~POST /CHARACS~~~~~~~~~~~~~~~
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+app.post('/characs', urlencodedParser, function(req,res){
+    return universe.insertChar(req,res,function(req,res,charid){
+        return res.set({
+            "code":202,
+            "location":("/characs/"+charid)
+            })
+            .redirect(("/characs/"+charid));
+    });
 });
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //~~~~~~~~~~~~~~~~SEARCH "ENGINE"~~~~~~~~~~~~~~~~
@@ -111,129 +220,45 @@ app.post("/search", urlencodedParser, function(req,res){
         "path":[]
     }
     //must manage every kind of research
-    var querySearch = function(client,done,research,callback){
+    var querySearch = function(req,res,research,callback){
         //characters research
         if ( research.type == "characs" ){
-            client.query("SELECT charId, charName FROM characs WHERE charName ILIKE $1",
-                ['%'+research.word+'%'], function(err, result){
-                //error handling
-                if(err) {
-                  done(client);
-                  console.log(err);
-                  return res.sendStatus(500);
+            return universe.getCharactersByName(req,res,function(req,res,characters){
+                for (var i = 0; i < characters.length; i++) {
+                    research.name.push(characters[i].charname);
+                    research.path.push(characters[i].charid)
                 }
-                //push it in
-                for (var i = 0; i < result.rows.length; i++) {
-                    research.name.push(result.rows[i].charname);
-                    research.path.push(result.rows[i].charid)
-                }
-                //then respond
-                return callback(research);
+                return callback(req,res,research);
             });
         //users research
         } else if ( research.type == "user" ){
-            client.query("SELECT nickname FROM users WHERE nickname LIKE $1",
-                ['%'+research.word+'%'], function(err, result){
-                //error handy
-                if(err) {
-                  done(client);
-                  console.log(err);
-                  return res.sendStatus(500);
-                }
-                //push it to the max
-                for (var i = 0; i < result.rows.length; i++) {
-
-                    research.name.push(result.rows[i].nickname);
-                    research.path.push(result.rows[i].nickname);
+            return user.getUsersByName(req,res,function(req,res,users){
+                for (var i = 0; i < users.length; i++) {
+                    research.name.push(users[i].nickname);
+                    research.path.push(users[i].nickname);
                 }
                 //back to watt
-                return callback(research);
+                return callback(req,res,research);
             });
         //universe
         }else if ( research.type == "universe" ){
-            client.query("SELECT universeNbr, universeName FROM universe WHERE universeName LIKE $1",
-                ['%'+research.word+'%'], function(err, result){
-                //errors ?
-                if(err) {
-                  done(client);
-                  console.log(err);
-                  return res.sendStatus(500);
+            return universe.getUniversesByName(req,res,function(req,res,universes){
+                for (i = 0 ; i < universes.length ; i++){
+                    research.name.push(universes[i].universename);
+                    research.path.push(universes[i].universenbr)
                 }
-                //arraying isn't a verb
-                for (var i = 0; i < result.rows.length; i++) {
-                    research.name.push(result.rows[i].universename);
-                    research.path.push(result.rows[i].universenbr);
-                }
-                //responding
-                return callback(research);
+                return callback(req,res,research);
             });
         }else{ return res.status(400).send("This is not in my base"); }
     }
-        //connect the DB
-    pg.connect(process.env.DATABASE_URL, function(err, client, done){
-        //handle err
-        if(err) {
-          done(client);
-          console.log(err);
-          return res.sendStatus(500);
-        }
-        //query the research
-        querySearch( client, done, research, function(research){
-            done(client);
-            res.render("search.ejs", {logs: req.session, research:research},
-                function(err, html){
-                res.status(202).send(html);
-            });
+    //query the research
+    return querySearch(req,res,research, function(req,res,research){
+        return res.render("search.ejs", {logs: req.session, research:research},
+            function(err, html){
+                if(err){console.log(err);return res.sendStatus(500);}
+            res.status(202).send(html);
         });
     });
-});
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//~~~~~~~~~~~~~~~UNIVERS FORM~~~~~~~~~~~~~~~
-//~~~~~~~~~~~~~~~GET/POST "/universe"~~~~~~~~~~~~~~~
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//~~~~~~~~~~~~~~~Get universe~~~~~~~~~~~~~~~
-app.get("/universe", function(req,res){
-    res.setHeader("content-Type","text/html");
-    res.render('universe.ejs', {logs: req.session});
-});
-//~~~~~~~~~~~~~~~POST universe~~~~~~~~~~~~~~~
-app.post("/universe", urlencodedParser, function(req,res){
-    var universeData = {
-        "name" : req.body.universeName,
-        "desc" : req.body.universeDesc
-    }
-    //caring about the universe.
-    var queryUniv = function(universeDate, client, done, callback){
-        client.query("INSERT INTO universe (universeName,universeDesc) VALUES ($1,$2) RETURNING universeNbr",
-            [universeData.name, universeData.desc],
-            function(err,result){
-            if(err) {
-                done(client);
-                //errors if already exist
-                return res.status(400)
-                    .render('universe.ejs',
-                        {logs: req.session, error:"Name already taken."});
-            }
-            return callback(result.rows[0].universenbr);
-        });
-    }
-    pg.connect(process.env.DATABASE_URL, function(err, client, done){
-        //handle error
-        if(err) {
-            done(client);
-            console.log(err);
-            return res.sendStatus(500);
-        }
-        queryUniv(universeData, client, done , function(universenbr){
-            done(client);
-            var urlUniv = "/universe/" + universenbr;
-            res.status(202)
-            .set({"location" : urlUniv })
-            .render('universe.ejs',
-                {logs: req.session, redirect:urlUniv});
-        });
-    });
-
 });
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //~~~~~~~~~~~~~~~~TYPE PAGE~~~~~~~~~~~~~~~~
@@ -354,129 +379,10 @@ app.get("/:itemtype/:itemid", function(req,res,next){
         }else { done(client) ; return next() ; }
     })
 });
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//~~~~~~~~~~~~~~~HAREM LISTS~~~~~~~~~~~~~~~
-//~~~~~~~~~~~~~~~GET/POST(/PUT/DELETE)~~~~~~~~~~~~~~~
-//~~~~~~~~~~~~~~~"/user/username/harem"~~~~~~~~~~~~~~~
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//~~~~~~~~~~~~~~~Get /user/user/harem~~~~~~~~~~~~~~~
-app.get("/user/:iduser/:idharem", function(req,res,next){
-    var queryHarem = function(req,res,client,done,callback){
-        client.query("SELECT nickname,haremname,haremdesc FROM harems WHERE nickname=$1 AND haremid=$2",
-            [req.params.iduser,req.params.idharem],function(err,result){
-            if (err){
-                done(client);
-                console.log(err);
-                return res.sendStatus(500);
-            }
-            return callback(result,req,res,client,done)
-        });
-    }
-    var queryWeddings = function(data,req,res,client,done,callback){
-        client.query("SELECT characs.charname, characs.charid, weddesc,favorite FROM weddings, characs WHERE haremid = $1 AND weddings.charid = characs.charid",
-            [req.params.idharem],function(err,result){
-            done(client);
-            if (err){
-                console.log(err);
-                return res.sendStatus(500);
-            }
-            data.weddings = result.rows;
-            return callback(data,req,res);
-        });
-    }
-    var responding = function(data,req,res){
-        res.render("harem.ejs",{logs:req.session,harem:data},function(err,html){
-            if(err){
-                console.log(err);
-                return res.sendStatus(500);
-            }
-            res.status(200).send(html);
-        });
-    }
-    pg.connect(process.env.DATABASE_URL, function(err,client,done){
-        if (err) {
-            done(client);
-            console.log(err);
-            return res.sendStatus(500);
-        }
-        queryHarem(req,res,client,done,function(result,req,res,client,done){
-            if (typeof(result.rows[0])=='undefined'){
-                done(client);
-                return next();
-            }else{
-                var data = {
-                    haremowner:result.rows[0].nickname,
-                    haremname:result.rows[0].haremname,
-                    haremdesc:result.rows[0].haremdesc
-                }
-                return queryWeddings(data,req,res,client,done,responding)
-            }
-        });
-    });
-});
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//~~~~~~~~~~~~~~~POST "/user/user(/harem")~~~~~~~~~~~~~~~
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-app.post("/user/:iduser",urlencodedParser, function(req,res){
-    return harem.insertHarem(req,res, function(req,res,idharem){
-        return res.set({
-            "code":202,
-            "location":("/user/"+req.params.iduser+"/"+idharem)
-            })
-            .redirect(("/user/"+req.params.iduser));
-    });
-});
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//~~~~~~~~~~~~~~~POST WEDDINGS~~~~~~~~~~~~~~~
-//~~~~~~~~~~~~~~~POST "/user/user/harem/(idchar)"~~~~~~~~~~~~~~~
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-app.post("/user/:iduser/:idharem", urlencodedParser, function(req,res){
-    return harem.insertWedding(req,res,function(req,res,idwedding){
-        return res.set({
-            "code":202,
-            "location":("/user/"+req.params.iduser+"/"+req.params.idharem+"/"+idwedding)
-            })
-            .redirect(("/user/"+req.params.iduser+"/"+req.params.idharem));
-    })
-});
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-//~~~~~~~~~~~~~~~POST /CHARACS~~~~~~~~~~~~~~~
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-app.post('/characs', urlencodedParser, function(req,res){
-    var insertChar = function(req,res,client,done,callback){
-        client.query("INSERT INTO characs (charname,alternames, chargender,chardesc,universename) VALUES ($1,$2,$3,$4,$5) RETURNING charId",
-            [req.body.CharName, req.body.AlterNames, req.body.CharGender, req.body.CharDesc, req.body.UniverseName],
-            function(err,result){
-            done(client);
-            if (err) {
-                console.log(err);
-                return res.sendStatus(500);
-            }
-            return callback(result.rows[0].charid,req,res);
-        });
-    }
-    var responding = function(charid,req,res){
-
-        return res.set({
-            "code":202,
-            "location":("/characs/"+charid)
-        })
-        .redirect(("/characs/"+charid));
-    }
-
-    pg.connect(process.env.DATABASE_URL, function(err,client,done){
-        if (err) {
-                console.log(err);
-                return res.sendStatus(500);
-        }
-        return insertChar(req,res,client,done,responding);
-    });
-});
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //~~~~~~~~~~~~~~~ASSETS DIRECTIONS~~~~~~~~~~~~~~~
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-app.use(favicon(__dirname + '/assets/favicon.ico'));
 app.use(express.static(__dirname+"/assets"));
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //~~~~~~~~~~~~~~~404 NOT FOUND~~~~~~~~~~~~~~~
