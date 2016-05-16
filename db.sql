@@ -1,13 +1,4 @@
-/*
-LAURENT@LIRMM.FR
-arnaud.castelltort@gmail.com
-(copie cachée)
-23h42
-support au choix.
-*//*
-CREATE DATABASE myharemlist;
-\connect myharemlist
-*/
+
 CREATE TABLE users
 (
  nickname varchar(30) NOT NULL PRIMARY KEY,
@@ -82,7 +73,7 @@ CREATE TRIGGER one_favorite
 INSERT INTO universe (universeName,universeDesc)
     VALUES ('Fate/Stay','Why would you fight for the Graal when you can Catch them all');
 INSERT INTO characs (charName,alterNames,charGender,charDesc,universeName)
-    VALUES ('Saber','Arthuria, Arthur, King of Knights, SABAAA.','Waifu','A virgin king craving for redemption','Fate/Stay');
+    VALUES ('Saber','Arthuria, Arthur, King of Knights, SABAAA.','Waifu','A king craving for redemption','Fate/Stay');
 INSERT INTO characs (charName,alterNames,charGender,charDesc,universeName)
     VALUES ('Gilgamesh','Heres King', 'Husband','A highschooler who thinks everything belong to him.','Fate/Stay');
 
